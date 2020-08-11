@@ -1,31 +1,16 @@
 let Consts = {
 	OpenDataKeys: {
-		InitKey: "initKey",
-		Grade: "testkey",
-		LevelKey: "reachlevel",
-		ScoreKey: "levelScore", // json.string
+		ScoreKey: "ScoreKey", //提交分数与排行的key值
 	},
 	DomainAction: {
-		FetchFriend: "FetchFriend",
-		FetchGroup: "FetchGroup",
-		FetchFriendLevel: "FetchFriendLevel", //好友关卡进度排行
-		FetchFriendScore: "FetchFriendScore", //好友关卡得分排行
-		HorConmpar: "HorConmpar", //横向比较 horizontal comparison
-		Paging: "Paging",
-        Scrolling: "Scrolling",
-        SumbitScore: "SumbitScore",//提交分数
+		Scrolling: "Scrolling",//滑动
+		SumbitScore: "SumbitScore",//提交分数
 		ShowRank: "ShowRank"//显示排名
 	},
 }
 
 window.Platform={};
 Platform.CC_WECHATGAME=cc.sys.platform === cc.sys.WECHAT_GAME//在微信平台
-
-// 这个换成自己的逻辑
-let utils = {
-    curLevel : 1,
-    getScore : _=>{return 1}
-}
 
 const { ccclass, property } = cc._decorator;
 
@@ -62,7 +47,11 @@ export default class wxRankList extends cc.Component {
         this.resizeSharedCanvas(this.rankRender.node.width, this.rankRender.node.height)
     }
     update(dt) {
-        this.updateRankList()
+		this._timeCounter+=dt;
+		if(this._timeCounter>this.rendInterval){
+			this._timeCounter=0;
+			this.updateRankList()
+		}
     }
 
     resizeSharedCanvas(width, height){
@@ -119,7 +108,7 @@ export default class wxRankList extends cc.Component {
     }    
 
     //向子域发送消息
-    postMessage(action, data=null, dataEx=null) {
+    postMessage(action,data=null) {
         if(Platform.CC_WECHATGAME){
             let openDataContext = window.wx.getOpenDataContext()
             openDataContext.postMessage({
@@ -131,19 +120,19 @@ export default class wxRankList extends cc.Component {
     }
 
     //获取关卡得分排行
-    showRank(level,gameName,isMax=true){
+    showRank(key,gameName,isMax=true){
         this.labelTitle.string = gameName+`排行榜`
         this.node.active = true;
         this.touchLayer.active = true
         this.onEnable()
         this.changeRender(this.rankListNode)        
-        this.postMessage(Consts.DomainAction.ShowRank, {level:level,isMax:isMax})
+        this.postMessage(Consts.DomainAction.ShowRank, {key:key,isMax:isMax})
     }
     //提交分数
-    sumbitScore(level,score,isMax=true) {
-        cc.log(level,score,isMax);
+    sumbitScore(key,score,isMax=true) {
+        cc.log(key,score,isMax);
         if(Platform.CC_WECHATGAME){
-            this.postMessage(Consts.DomainAction.SumbitScore, {level:level,score:score,isMax:isMax});
+            this.postMessage(Consts.DomainAction.SumbitScore, {key:key,score:score,isMax:isMax});
         }
     }
 }
