@@ -33,25 +33,17 @@ export default class wxRankList extends cc.Component {
     // @property(Boolean)
     enableScroll = true;//
 
-    _timeCounter=0;
-    rendInterval=0.5;//刷新排行画布间隔s
-
     rankTexture:cc.Texture2D=null;
     rankSpriteFrame : cc.SpriteFrame=null;
     closeBackRank=0; // 关闭后操作
 
-    onLoad() {        
-        this._timeCounter = 0
+    onLoad() {
         this.rankTexture = new cc.Texture2D();
         this.rankSpriteFrame = new cc.SpriteFrame();
         this.resizeSharedCanvas(this.rankRender.node.width, this.rankRender.node.height)
     }
     update(dt) {
-		this._timeCounter+=dt;
-		if(this._timeCounter>this.rendInterval){
-			this._timeCounter=0;
-			this.updateRankList()
-		}
+		this.updateRankList()
     }
 
     resizeSharedCanvas(width, height){
